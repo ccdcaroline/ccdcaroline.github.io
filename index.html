@@ -1,206 +1,677 @@
-<!DOCTYPE html>
+# generate_site.py
+# Creates a personal website (index.html + styles.css + script.js) in a /site folder.
+
+from pathlib import Path
+
+SITE_DIR = Path("site")
+
+PROFILE = {
+    "name": "Caroline DiGiovanni",
+    "headline": "Senior at Babson College • Business Analytics",
+    "tagline": "Projects, experience, and a little bit of what I love outside of work.",
+    "linkedin_url": "https://www.linkedin.com/in/YOUR-LINKEDIN-HERE",  # <-- replace
+    "email": "your.email@example.com",  # <-- replace (optional)
+    "location": "Boston, MA",
+}
+
+PROJECTS = [
+    {
+        "title": "Marketing Database Build (Vantage Partners)",
+        "subtitle": "Lead gen + contact research workflow",
+        "description": "Built and organized a marketing contact database from scratch using structured research, segmentation, and clean data practices.",
+        "skills": ["Data cleaning", "Research", "CRM", "Segmentation"],
+        "link": "#",
+    },
+    {
+        "title": "Sports Marketing Analysis",
+        "subtitle": "Promotions + effectiveness evaluation",
+        "description": "Analyzed promotional strategy and stakeholder impacts, focusing on what drives engagement and measurable outcomes.",
+        "skills": ["Strategy", "Evaluation", "Consumer behavior"],
+        "link": "#",
+    },
+    {
+        "title": "Text Analytics / NLP Class Project",
+        "subtitle": "Themes + insights from text",
+        "description": "Explored patterns in text using tokenization and theme discovery, turning qualitative content into structured insights.",
+        "skills": ["Python/R", "NLP", "Analysis"],
+        "link": "#",
+    },
+]
+
+INTERNSHIP_REFLECTION = {
+    "title": "Internship Reflection",
+    "paragraphs": [
+        "My internship taught me how important clean data is before you can do anything meaningful with analytics.",
+        "I learned how to turn messy information into something structured, searchable, and useful for future campaigns and outreach.",
+        "It also gave me confidence working independently—when something didn’t exist yet, I built the first version and improved it step-by-step."
+    ],
+}
+
+FIELD_HOCKEY = {
+    "title": "Field Hockey",
+    "body": "Field hockey has shaped how I lead and how I show up on a team—communication, consistency, and staying calm under pressure. The habits I built through athletics carry directly into my work style.",
+    "highlights": ["Team leadership", "Discipline & time management", "Competitive mindset"],
+}
+
+INTERESTS = [
+    {"name": "Beach", "emoji": "🏖️", "detail": "Cape Cod energy anytime I can get it."},
+    {"name": "Gym", "emoji": "💪", "detail": "I love structured training and setting goals."},
+    {"name": "Puzzles", "emoji": "🧩", "detail": "Anything that feels like problem-solving is my thing."},
+]
+
+THEME = {
+    # You can tweak these easily
+    "raspberry": "#D81B60",
+    "dark_brown": "#3B2F2F",
+    "white": "#FFFFFF",
+    "off_white": "#FBF8FA",
+    "text": "#1F1A1C",
+    "muted": "#6B5F63",
+    "border": "#E8DEE2",
+}
+
+
+def ensure_site_dir():
+    SITE_DIR.mkdir(exist_ok=True)
+
+
+def build_css(theme: dict) -> str:
+    return f"""
+/* styles.css - Caroline DiGiovanni personal site theme */
+
+:root {{
+  --raspberry: {theme["raspberry"]};
+  --brown: {theme["dark_brown"]};
+  --bg: {theme["white"]};
+  --bg-soft: {theme["off_white"]};
+  --text: {theme["text"]};
+  --muted: {theme["muted"]};
+  --border: {theme["border"]};
+
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(0,0,0,0.06);
+}}
+
+* {{
+  box-sizing: border-box;
+}}
+
+html, body {{
+  margin: 0;
+  padding: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: var(--bg);
+  color: var(--text);
+}}
+
+a {{
+  color: inherit;
+  text-decoration: none;
+}}
+
+.container {{
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+}}
+
+.nav {{
+  position: sticky;
+  top: 0;
+  background: rgba(255,255,255,0.86);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  z-index: 20;
+}}
+
+.nav-inner {{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+}}
+
+.brand {{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}}
+
+.dot {{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--raspberry);
+  box-shadow: 0 0 0 4px rgba(216,27,96,0.14);
+}}
+
+.nav-links {{
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}}
+
+.nav-links a {{
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 14px;
+}}
+
+.nav-links a:hover {{
+  border-color: var(--border);
+  color: var(--text);
+}}
+
+.hero {{
+  padding: 56px 0 26px;
+}}
+
+.hero-card {{
+  background: linear-gradient(180deg, var(--bg-soft), var(--bg));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 26px;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 18px;
+}}
+
+@media (max-width: 860px) {{
+  .hero-card {{
+    grid-template-columns: 1fr;
+  }}
+}}
+
+.h1 {{
+  font-size: clamp(30px, 3.6vw, 44px);
+  line-height: 1.05;
+  margin: 0;
+}}
+
+.subhead {{
+  margin: 10px 0 0;
+  font-size: 16px;
+  color: var(--muted);
+}}
+
+.badge-row {{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}}
+
+.badge {{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-weight: 650;
+  font-size: 13px;
+}}
+
+.badge strong {{
+  color: var(--brown);
+}}
+
+.cta-col {{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+  justify-content: center;
+}}
+
+.btn {{
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.06s ease, border-color 0.2s ease;
+}}
+
+.btn:hover {{
+  border-color: rgba(216,27,96,0.4);
+}}
+
+.btn:active {{
+  transform: translateY(1px);
+}}
+
+.btn.primary {{
+  background: var(--raspberry);
+  color: #fff;
+  border-color: transparent;
+}}
+
+.btn.primary:hover {{
+  filter: brightness(0.98);
+}}
+
+.section {{
+  padding: 26px 0;
+}}
+
+.section-title {{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}}
+
+.section-title h2 {{
+  margin: 0;
+  font-size: 20px;
+}}
+
+.section-title p {{
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}}
+
+.grid {{
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(12, 1fr);
+}}
+
+.card {{
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.04);
+  padding: 16px;
+}}
+
+.card .meta {{
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 6px;
+}}
+
+.pills {{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}}
+
+.pill {{
+  padding: 6px 10px;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--brown);
+  background: rgba(59,47,47,0.04);
+}}
+
+.project {{
+  grid-column: span 6;
+}}
+
+@media (max-width: 860px) {{
+  .project {{
+    grid-column: span 12;
+  }}
+}}
+
+.two-col {{
+  grid-column: span 6;
+}}
+
+@media (max-width: 860px) {{
+  .two-col {{
+    grid-column: span 12;
+  }}
+}}
+
+.footer {{
+  padding: 30px 0 50px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+}}
+
+.small {{
+  font-size: 13px;
+}}
+
+.accent {{
+  color: var(--raspberry);
+  font-weight: 800;
+}}
+
+hr.soft {{
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 14px 0;
+}}
+
+.highlight {{
+  border-left: 4px solid var(--raspberry);
+  padding-left: 12px;
+}}
+
+.search {{
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 12px;
+  font-size: 14px;
+  outline: none;
+}}
+
+.search:focus {{
+  border-color: rgba(216,27,96,0.55);
+  box-shadow: 0 0 0 4px rgba(216,27,96,0.14);
+}}
+""".strip()
+
+
+def build_js() -> str:
+    return """
+// script.js - tiny interactivity: project filtering + smooth scroll
+
+function smoothScrollTo(id) {
+  const el = document.querySelector(id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Smooth scroll for nav links
+  document.querySelectorAll("[data-scroll]").forEach((a) => {
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      smoothScrollTo(a.getAttribute("href"));
+    });
+  });
+
+  // Filter projects
+  const search = document.querySelector("#projectSearch");
+  const cards = Array.from(document.querySelectorAll("[data-project]"));
+
+  if (search) {
+    search.addEventListener("input", () => {
+      const q = search.value.toLowerCase().trim();
+      cards.forEach((card) => {
+        const text = card.getAttribute("data-project").toLowerCase();
+        card.style.display = text.includes(q) ? "" : "none";
+      });
+    });
+  }
+});
+""".strip()
+
+
+def build_projects_html(projects: list[dict]) -> str:
+    blocks = []
+    for p in projects:
+        skills = "".join(f'<span class="pill">{s}</span>' for s in p["skills"])
+        blocks.append(f"""
+        <article class="card project" data-project="{p["title"]} {p["subtitle"]} {p["description"]} {' '.join(p['skills'])}">
+          <h3 style="margin:0;">{p["title"]}</h3>
+          <div class="meta">{p["subtitle"]}</div>
+          <p style="margin:12px 0 0; line-height:1.5;">{p["description"]}</p>
+          <div class="pills">{skills}</div>
+          <div style="margin-top:12px;">
+            <a class="btn" href="{p["link"]}" target="_blank" rel="noreferrer">View details</a>
+          </div>
+        </article>
+        """.strip())
+    return "\n".join(blocks)
+
+
+def build_interests_html(interests: list[dict]) -> str:
+    blocks = []
+    for i in interests:
+        blocks.append(f"""
+        <div class="card two-col">
+          <div style="font-size:20px; font-weight:800;">{i["emoji"]} {i["name"]}</div>
+          <div class="meta">{i["detail"]}</div>
+        </div>
+        """.strip())
+    return "\n".join(blocks)
+
+
+def build_html(profile: dict) -> str:
+    projects_html = build_projects_html(PROJECTS)
+    interests_html = build_interests_html(INTERESTS)
+
+    reflection_paras = "".join(
+        f"<p style='margin:10px 0 0; line-height:1.6;'>{p}</p>"
+        for p in INTERNSHIP_REFLECTION["paragraphs"]
+    )
+
+    hockey_list = "".join(f"<li>{h}</li>" for h in FIELD_HOCKEY["highlights"])
+
+    return f"""
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caroline DiGiovanni Website | Portfolio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #006747; /* Babson Green */
-            --secondary-color: #2d2d2d;
-            --accent-color: #f4f4f4;
-            --text-dark: #1a1a1a;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            color: var(--text-dark);
-            scroll-behavior: smooth;
-        }
-
-        /* Navigation */
-        nav {
-            background: white;
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        .logo {
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: var(--primary-color);
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            gap: 20px;
-        }
-
-        nav a {
-            text-decoration: none;
-            color: var(--secondary-color);
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        nav a:hover {
-            color: var(--primary-color);
-        }
-
-        /* Hero Section */
-        header {
-            height: 60vh;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&q=80') center/cover;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 0 20px;
-        }
-
-        header h1 { font-size: 3rem; margin-bottom: 0.5rem; }
-        header p { font-size: 1.2rem; max-width: 600px; }
-
-        /* General Sections */
-        section { padding: 4rem 10%; }
-        h2 { border-bottom: 3px solid var(--primary-color); display: inline-block; margin-bottom: 2rem; }
-
-        /* Grid Layouts */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .card {
-            background: var(--accent-color);
-            padding: 2rem;
-            border-radius: 8px;
-            transition: transform 0.3s;
-        }
-
-        .card:hover { transform: translateY(-5px); }
-
-        /* Special Styling for Internship Reflection */
-        .reflection-box {
-            background: #e9f0ee;
-            padding: 2rem;
-            border-left: 5px solid var(--primary-color);
-            font-style: italic;
-        }
-
-        /* Footer */
-        footer {
-            background: var(--secondary-color);
-            color: white;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .btn {
-            background: var(--primary-color);
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{profile["name"]} • Portfolio</title>
+  <meta name="description" content="Portfolio and resume site for {profile["name"]}." />
+  <link rel="stylesheet" href="./styles.css" />
 </head>
+
 <body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>{profile["name"]}</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#projects" data-scroll>Projects</a>
+        <a href="#about" data-scroll>About</a>
+        <a href="#reflection" data-scroll>Internship</a>
+        <a href="#hockey" data-scroll>Field Hockey</a>
+        <a href="#contact" data-scroll>Contact</a>
+      </nav>
+    </div>
+  </header>
 
-    <nav>
-        <div class="logo">CD</div>
-        <ul>
-            <li><a href="#about">About</a></li>
-            <li><a href="#career">Field Hockey</a></li>
-            <li><a href="#projects">Projects</a></li>
-            <li><a href="#internship">Internship</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-    </nav>
+  <main class="container">
+    <!-- HERO -->
+    <section class="hero" id="top">
+      <div class="hero-card">
+        <div>
+          <h1 class="h1">
+            {profile["name"]}
+            <span class="accent">.</span>
+          </h1>
+          <p class="subhead">{profile["headline"]}</p>
+          <p class="subhead" style="margin-top:8px;">{profile["tagline"]}</p>
 
-    <header>
-        <h1>Caroline DiGiovanni</h1>
-        <p>Babson College Senior | Business Analytics | NCAA Field Hockey Athlete</p>
-    </header>
-
-    <section id="about">
-        <h2>About Me</h2>
-        <p>I am a highly motivated student at <strong>Babson College</strong>, concentrating in Business Analytics. With a background as a collegiate athlete, I combine competitive drive with technical skills to solve complex business problems through data-driven insights.</p>
-        <div class="grid">
-            <div class="card">
-                <h3>Interests</h3>
-                <ul>
-                    <li>Data Visualization & Storytelling</li>
-                    <li>Fitness (Barry's & Hot Yoga)</li>
-                    <li>Fashion Technology</li>
-                    <li>Global Travel & Culture</li>
-                </ul>
-            </div>
-            <div class="card">
-                <h3>Skills</h3>
-                <ul>
-                    <li>Marketing Analytics</li>
-                    <li>Competitive Research</li>
-                    <li>Web Technology (HTML/CSS)</li>
-                    <li>Strategic Communication</li>
-                </ul>
-            </div>
+          <div class="badge-row">
+            <span class="badge">📍 <strong>{profile["location"]}</strong></span>
+            <span class="badge">📊 <strong>Business Analytics</strong></span>
+            <span class="badge">🎓 <strong>Babson College</strong></span>
+          </div>
         </div>
-    </section>
 
-    <section id="career" style="background-color: #fff;">
-        <h2>Field Hockey Career</h2>
-        <p>Competing as a Babson Field Hockey athlete has been the cornerstone of my college experience. It taught me the discipline required to manage a rigorous academic schedule while competing at a national level.</p>
-        <div class="reflection-box">
-            "The transition from the field to the boardroom is fueled by the same grit, teamwork, and strategic thinking developed through years of elite competition."
+        <div class="cta-col">
+          <a class="btn primary" href="{profile["linkedin_url"]}" target="_blank" rel="noreferrer">
+            LinkedIn
+          </a>
+          <a class="btn" href="#projects" data-scroll>Explore Projects</a>
+          <a class="btn" href="#contact" data-scroll>Contact</a>
         </div>
+      </div>
     </section>
 
-    <section id="projects">
-        <h2>Selected Projects</h2>
-        <div class="grid">
-            <div class="card">
-                <h3>Sports Marketing Analysis</h3>
-                <p>An in-depth study on Major League Soccer's growth strategies and fan engagement metrics.</p>
-            </div>
-            <div class="card">
-                <h3>Web Technology Portfolio</h3>
-                <p>This website! Developed to showcase my ability to blend technical coding with personal branding.</p>
-            </div>
+    <!-- PROJECTS -->
+    <section class="section" id="projects">
+      <div class="section-title">
+        <h2>Projects</h2>
+        <p>Search + browse my work</p>
+      </div>
+
+      <input class="search" id="projectSearch" placeholder="Search projects (ex: data, marketing, analysis)..." />
+
+      <div style="height:12px;"></div>
+      <div class="grid">
+        {projects_html}
+      </div>
+      <p class="small" style="color:var(--muted); margin-top:12px;">
+        Tip: Replace the “View details” links with a PDF, GitHub repo, Google Drive link, or a project page.
+      </p>
+    </section>
+
+    <!-- ABOUT + INTERESTS -->
+    <section class="section" id="about">
+      <div class="section-title">
+        <h2>About</h2>
+        <p>Quick intro + interests</p>
+      </div>
+
+      <div class="grid">
+        <div class="card two-col">
+          <h3 style="margin:0;">My focus</h3>
+          <p style="margin:10px 0 0; line-height:1.6;">
+            I’m a senior at Babson College concentrating in business analytics. I like taking messy information,
+            organizing it, and using it to make clearer decisions. This site is my online resume—projects, experience,
+            and what I’m excited to build next.
+          </p>
+          <hr class="soft" />
+          <div class="small" style="color:var(--muted);">
+            Want a stronger “resume vibe”? Add bullets for tools (Excel, SQL, Python/R), plus outcomes (time saved, leads generated, etc.).
+          </div>
         </div>
+
+        <div class="card two-col">
+          <h3 style="margin:0;">Core strengths</h3>
+          <div class="pills" style="margin-top:12px;">
+            <span class="pill">Data organization</span>
+            <span class="pill">Analytical thinking</span>
+            <span class="pill">Clear communication</span>
+            <span class="pill">Teamwork</span>
+            <span class="pill">Curiosity</span>
+          </div>
+          <p class="meta" style="margin-top:10px;">
+            (Customize these to match your resume + the class assignment.)
+          </p>
+        </div>
+      </div>
+
+      <div style="height:12px;"></div>
+      <div class="grid">
+        {interests_html}
+      </div>
     </section>
 
-    <section id="internship">
-        <h2>Internship Reflection</h2>
-        <h3>Marketing Intern | Vantage Partners</h3>
-        <p>During my summer at Vantage Partners, I dived deep into contact research and competitive analysis. This experience solidified my interest in consulting and analytics, as I learned how to turn raw market data into actionable insights for client strategy.</p>
+    <!-- INTERNSHIP REFLECTION -->
+    <section class="section" id="reflection">
+      <div class="section-title">
+        <h2>{INTERNSHIP_REFLECTION["title"]}</h2>
+        <p>What I learned + how I grew</p>
+      </div>
+
+      <div class="card highlight">
+        {reflection_paras}
+      </div>
     </section>
 
-    <section id="contact">
-        <h2>Connect With Me</h2>
-        <p>I am currently exploring opportunities in Business Analytics and Interest Rate Sales.</p>
-        <a href="https://www.linkedin.com/in/carolinedigiovanni" class="btn" target="_blank">View My LinkedIn</a>
-        <a href="mailto:your-email@babson.edu" class="btn" style="background: #333;">Email Me</a>
+    <!-- FIELD HOCKEY -->
+    <section class="section" id="hockey">
+      <div class="section-title">
+        <h2>{FIELD_HOCKEY["title"]}</h2>
+        <p>A section that shows leadership</p>
+      </div>
+
+      <div class="grid">
+        <div class="card two-col">
+          <p style="margin:0; line-height:1.6;">{FIELD_HOCKEY["body"]}</p>
+        </div>
+        <div class="card two-col">
+          <h3 style="margin:0;">Highlights</h3>
+          <ul style="margin:10px 0 0; line-height:1.8;">
+            {hockey_list}
+          </ul>
+        </div>
+      </div>
     </section>
 
-    <footer>
-        <p>&copy; 2026 Caroline DiGiovanni | Built for Web Technology Class</p>
+    <!-- CONTACT -->
+    <section class="section" id="contact">
+      <div class="section-title">
+        <h2>Contact</h2>
+        <p>Links for recruiters + classmates</p>
+      </div>
+
+      <div class="grid">
+        <div class="card two-col">
+          <h3 style="margin:0;">Find me online</h3>
+          <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn primary" href="{profile["linkedin_url"]}" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a class="btn" href="#top" data-scroll>Back to top</a>
+          </div>
+        </div>
+
+        <div class="card two-col">
+          <h3 style="margin:0;">Email</h3>
+          <p class="meta" style="margin-top:10px;">
+            {profile["email"]}
+          </p>
+          <p class="small" style="color:var(--muted); margin-top:10px;">
+            Replace with your real email, or remove this card if your professor prefers no contact info.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="small">
+          Built by <span class="accent">{profile["name"]}</span> • Theme: white + raspberry pink + dark brown
+        </div>
+      </div>
     </footer>
+  </main>
 
+  <script src="./script.js"></script>
 </body>
 </html>
+""".strip()
+
+
+def write_file(path: Path, content: str):
+    path.write_text(content, encoding="utf-8")
+
+
+def main():
+    ensure_site_dir()
+
+    html = build_html(PROFILE)
+    css = build_css(THEME)
+    js = build_js()
+
+    write_file(SITE_DIR / "index.html", html)
+    write_file(SITE_DIR / "styles.css", css)
+    write_file(SITE_DIR / "script.js", js)
+
+    print("✅ Website generated!")
+    print(f"Open this file in your browser:\n{(SITE_DIR / 'index.html').resolve()}")
+
+
+if __name__ == "__main__":
+    main()
